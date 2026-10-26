@@ -27,6 +27,7 @@
   const dinheiro = (v) => "US$ " + Math.round(v).toLocaleString("pt-BR");
   const milhoes = (v) => "US$ " + (v / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mi";
   const pct = (v) => Math.round(v * 100) + "%";
+  const sinal = (v) => (v > 0 ? "+" : v < 0 ? "−" : "") + Math.abs(Math.round(v * 100)) + "%";
   const dataBR = (s) => s.split("-").reverse().join("/");
   const unicos = (lista, campo) => [...new Set(lista.map((v) => v[campo]))].sort();
   const PRIORIDADE = ["risco", "ativa", "esfriando", "prospeccao"];
@@ -161,7 +162,7 @@
       const vezes = prev.map((p) => p.crm / p.real);
       const erro = prev.map((p) => p.previsao / p.real - 1);
       $("explica-previsao").innerHTML = porque + `No teste com 4 datas do passado, o CRM mostrava <b>${Math.min(...vezes).toFixed(0)} a ${Math.max(...vezes).toFixed(0)} vezes</b> o que entrou de fato. ` +
-        `A previsão da ferramenta errou <b>${pct(Math.min(...erro))} a ${pct(Math.max(...erro))} para cima</b>. Detalhes em "Como a nota funciona".`;
+        `A previsão da ferramenta errou <b>entre ${sinal(Math.min(...erro))} e ${sinal(Math.max(...erro))}</b>. Detalhes em "Como a nota funciona".`;
     }
 
     const linhas = unicos(lista, "vendedor").map((nome) => {
@@ -195,6 +196,11 @@
     $("n-fotos").textContent = meta.fotos_do_passado;
     $("r-ja").textContent = pct(meta.relacao.ja_ganhou);
     $("r-sem").textContent = pct(meta.relacao.sem_historico);
+    if (meta.ajuste_base) {
+      $("aj-prev").textContent = meta.ajuste_base.previstas.toLocaleString("pt-BR");
+      $("aj-ganhas").textContent = meta.ajuste_base.ganhas.toLocaleString("pt-BR");
+      $("aj-fator").textContent = pct(meta.ajuste);
+    }
     $("grafico").innerHTML = meta.tabela_chance.map((f) => {
       const rotulo = f.ate > 10000 ? `mais de ${f.de - 1} dias` : `${f.de} a ${f.ate} dias`;
       const tipo = f.de > meta.prazo_maximo ? "rev" : f.de > meta.inicio_esfriar ? "esf" : "";

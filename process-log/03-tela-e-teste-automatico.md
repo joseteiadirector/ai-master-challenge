@@ -13,7 +13,7 @@ Ferramenta: Claude Code. Código em [`solution/app/`](../solution/app/) (HTML + 
 
 ## Teste automático
 
-O script abre a página num Chrome sem janela e confere 32 pontos, entre eles:
+O script abre a página num Chrome sem janela e confere 33 pontos, entre eles:
 
 - as vendas da semana (1 a 5) aparecem em ordem de valor esperado, cada uma com motivo e ação, e nenhuma com nota baixa;
 - os 27 vendedores com vendas abertas abrem sem erro e sem texto quebrado;

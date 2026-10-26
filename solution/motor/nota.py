@@ -86,6 +86,7 @@ class Modelo:
         self.prazo_maximo = prazo_maximo
         self.fase_risco = fase_risco
         self.fotos = int(fotos.foto.nunique())
+        self.ajuste = 1.0  # ajuste pelo último trimestre conhecido (ver calibrar)
 
     def chance_faixa(self, dias):
         return float(self.tabela.chance.iloc[pd.cut([dias], FAIXAS).codes[0]])
@@ -93,21 +94,42 @@ class Modelo:
     def chance(self, dias, ja_ganhou):
         if dias > self.prazo_maximo:
             return 0.0
-        return min(1.0, self.chance_faixa(dias) * self.relacao[bool(ja_ganhou)])
+        return min(1.0, self.chance_faixa(dias) * self.relacao[bool(ja_ganhou)] * self.ajuste)
 
     def faixa_txt(self, dias):
         f = pd.cut([dias], FAIXAS)[0]
         return f"mais de {int(f.left)} dias" if f.right > 10_000 else f"{int(f.left) + 1} a {int(f.right)} dias"
 
 
-def aprender(df, ate):
+def aprender(df, ate, calibrar=True):
     """Tudo o que o motor sabe vem de vendas encerradas até a data `ate`."""
     fech = df[df.close_date <= ate]
     dias_fech = (fech.close_date - fech.engage_date).dt.days
     prazo_maximo = int(dias_fech.max())
     fase_risco = int(dias_fech[fech.deal_stage == "Lost"].median())
     fotos = fotos_do_passado(ate_a_data(df, ate), ate)
-    return Modelo(fotos, prazo_maximo, fase_risco)
+    modelo = Modelo(fotos, prazo_maximo, fase_risco)
+    if calibrar:
+        modelo.ajuste, modelo.ajuste_base = calibrar_pelo_ultimo_trimestre(df, ate)
+    return modelo
+
+
+def calibrar_pelo_ultimo_trimestre(df, ate):
+    """A chance de ganhar caiu ao longo de 2017, e as fotos têm 90 dias de atraso.
+    Por isso o motor confere quanto errou no último trimestre já conhecido:
+    volta 90 dias, prevê com o que se sabia lá e compara com o que fechou até `ate`.
+    A chance de hoje é multiplicada por (ganhas de fato / ganhas previstas)."""
+    antes = ate - pd.Timedelta(days=HORIZONTE)
+    visto_antes = ate_a_data(df, antes)
+    if (visto_antes.close_date.notna()).sum() == 0:
+        return 1.0, None  # ainda não há trimestre fechado para conferir
+    modelo = aprender(df, antes, calibrar=False)
+    ab = abertas_em(visto_antes, antes)
+    ab = ab[ab.account.notna() & (ab.dias <= modelo.prazo_maximo)]
+    previstas = classificar(ab, modelo, antes, visto_antes).chance.sum()
+    agora = ate_a_data(df, ate).loc[ab.index]
+    ganhas = ((agora.deal_stage == "Won") & (agora.close_date <= ate)).sum()
+    return float(ganhas / previstas), {"previstas": round(float(previstas)), "ganhas": int(ganhas)}
 
 
 def ate_a_data(df, t):
@@ -183,7 +205,8 @@ def motivos(v, modelo):
     elif pd.notna(v["account"]):
         m.append(f"Primeira venda sua com {v['account']}: sem histórico, a chance é um pouco menor "
                  f"({pct(modelo.taxa_relacao[False])} contra {pct(modelo.taxa_relacao[True])}).")
-    m.append(f"Chance de fechar em 90 dias: {pct(v['chance'])}. Valor esperado: {dinheiro(v['valor_esperado'])}.")
+    m.append(f"Chance de fechar em 90 dias: {pct(v['chance'])}, já com o ajuste do último trimestre. "
+             f"Valor esperado: {dinheiro(v['valor_esperado'])}.")
     return m
 
 
@@ -234,6 +257,7 @@ def gerar(data_dir=DATA, hoje=HOJE):
                           for f, c, b in zip(modelo.tabela.index, modelo.tabela.chance, modelo.tabela.base)],
         "vendas_encerradas": int(df.deal_stage.isin(["Won", "Lost"]).sum()),
         "fotos_do_passado": modelo.fotos,
+        "ajuste": round(modelo.ajuste, 3), "ajuste_base": modelo.ajuste_base,
     }
     teste = RAIZ.parent / "docs" / "resultado-teste.json"
     if teste.exists():

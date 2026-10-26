@@ -116,7 +116,8 @@ def sem_espiar_o_futuro(df):
     mexido.loc[depois, "close_date"] = mexido.loc[depois, ["close_date"]].max(axis=1).clip(lower=t + pd.Timedelta(days=1))
     depois_ = nota.aprender(mexido, t)
     return (antes.tabela.equals(depois_.tabela) and antes.relacao == depois_.relacao
-            and antes.prazo_maximo == depois_.prazo_maximo and antes.fase_risco == depois_.fase_risco)
+            and antes.prazo_maximo == depois_.prazo_maximo and antes.fase_risco == depois_.fase_risco
+            and antes.ajuste == depois_.ajuste)
 
 
 def main():
