@@ -2,7 +2,7 @@
 
 Lê os CSVs, aprende com o passado e grava solution/app/dados.js com:
   - a nota de cada venda aberta, o motivo e a próxima ação;
-  - as 5 vendas da semana de cada vendedor;
+  - as 5 vendas da semana de cada vendedor (nota 20 ou mais);
   - o "pipeline de verdade" para a chefe de vendas.
 
 A chance de uma venda é medida com "fotos do passado": em cada fim de mês,
@@ -26,6 +26,7 @@ HORIZONTE = 90           # chance de fechar nos próximos 90 dias
 FAIXAS = [-1, 7, 14, 30, 45, 60, 75, 90, 100, 110, 120, 130, 138, 100_000]
 INICIO_ESFRIAR = 100     # a partir daqui a chance cai mês a mês
 POR_SEMANA = 5           # vendas na lista "as 5 da semana"
+NOTA_MINIMA = 20         # abaixo disso (os 20% de menor valor) a venda não entra na semana
 
 
 # ---------------------------------------------------------------- dados
@@ -204,7 +205,8 @@ def gerar(data_dir=DATA, hoje=HOJE):
     v["nota"] = 0
     v.loc[prio, "nota"] = notas_0_100(v.loc[prio, "valor_esperado"])
     v["semana"] = False
-    topo = (v[prio].sort_values(["valor_esperado", "chance"], ascending=False)
+    candidatas = prio & (v.nota >= NOTA_MINIMA)
+    topo = (v[candidatas].sort_values(["valor_esperado", "chance"], ascending=False)
                     .groupby("sales_agent").head(POR_SEMANA).index)
     v.loc[topo, "semana"] = True
 
@@ -225,7 +227,7 @@ def gerar(data_dir=DATA, hoje=HOJE):
     meta = {
         "hoje": hoje.strftime("%Y-%m-%d"),
         "prazo_maximo": modelo.prazo_maximo, "fase_risco": modelo.fase_risco,
-        "inicio_esfriar": INICIO_ESFRIAR, "por_semana": POR_SEMANA,
+        "inicio_esfriar": INICIO_ESFRIAR, "por_semana": POR_SEMANA, "nota_minima": NOTA_MINIMA,
         "relacao": {"ja_ganhou": round(modelo.taxa_relacao[True], 3),
                     "sem_historico": round(modelo.taxa_relacao[False], 3)},
         "tabela_chance": [{"de": int(f.left) + 1, "ate": int(f.right), "chance": round(float(c), 3), "base": int(b)}

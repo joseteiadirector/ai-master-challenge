@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-Construí o **Lead Scorer "Segunda-feira"**, uma ferramenta com duas telas. O **vendedor** abre e vê **as 5 vendas da semana**, cada uma com nota de 0 a 100, o motivo em português, a próxima ação e um botão para marcar como feita. A **chefe de vendas** vê **o pipeline de verdade**: o CRM mostra US$ 5,0 mi em vendas abertas, mas 1.291 delas (US$ 3,2 mi) estão paradas há mais tempo do que qualquer venda da história levou, e 546 não têm cliente cadastrado. No teste com o passado (4 datas de 2017), focar nos 20% do topo da lista capturou **59,2% da receita dos 90 dias seguintes**, contra 48,4% ordenando só por preço, 45,3% com a nota "óbvia" (taxa do vendedor no produto × preço) e 20,0% ao acaso. A principal recomendação: **limpar o pipeline antes de qualquer previsão**, porque nos testes o CRM mostrou 3 a 5 vezes o que entrou de fato.
+Construí o **Lead Scorer "Segunda-feira"**, uma ferramenta com duas telas. O **vendedor** abre e vê **as 5 vendas da semana** (até 5 de maior valor esperado), cada uma com nota de 0 a 100, o motivo em português, a próxima ação e um botão para marcar como feita. A **chefe de vendas** vê **o pipeline de verdade**: o CRM mostra US$ 5,0 mi em vendas abertas, mas 1.291 delas (US$ 3,2 mi) estão paradas há mais tempo do que qualquer venda da história levou, e 546 não têm cliente cadastrado. No teste com o passado (4 datas de 2017), focar nos 20% do topo da lista capturou **59,2% da receita dos 90 dias seguintes**, contra 48,4% ordenando só por preço, 45,3% com a nota "óbvia" (taxa do vendedor no produto × preço) e 20,0% ao acaso. A principal recomendação: **limpar o pipeline antes de qualquer previsão**, porque nos testes o CRM mostrou 3 a 5 vezes o que entrou de fato.
 
 ---
 
@@ -51,8 +51,8 @@ Os 4 CSVs originais do Kaggle estão em `solution/data/`, sem alteração.
 
 | Tela | O que mostra | Botões |
 |---|---|---|
-| **Vendedor** | As 5 da semana (nota, motivo, próxima ação, chance, valor esperado), as outras vendas abertas e duas listas de limpeza | Feito · Ainda viva / Encerrar · Cadastrado |
-| **Chefe de vendas** | Pipeline do CRM × previsão real de 90 dias × parado × sem cliente, com filtro por região e gerente, e o próximo passo de cada vendedor | — |
+| **Vendedor** | As 5 da semana: até 5 vendas de maior valor esperado, sem as de valor muito baixo (nota abaixo de 20). Cada uma com nota, motivo, próxima ação, chance e valor esperado. Depois, as outras vendas abertas e duas listas de limpeza | Feito · Ainda viva / Encerrar · Cadastrado |
+| **Chefe de vendas** | Pipeline do CRM × previsão real de 90 dias × parado × sem cliente, com a explicação da diferença, filtro por região e gerente, e o próximo passo de cada vendedor | — |
 | **Como a nota funciona** | Os 4 passos da nota, a curva de chance e o resultado dos testes | Apagar marcações |
 
 **Como a nota é calculada:**
@@ -163,6 +163,7 @@ A nota ganhou de cada alternativa **nas 4 datas**. Vendas empatadas (mesmo preç
 - **Dois usuários.** A ferramenta não é só para o vendedor: quem fez o pedido foi a chefe de vendas, e ela precisa saber quanto do pipeline é real.
 - **Arquitetura e dados conferidos antes de qualquer código.** Pedi a arquitetura documentada desde o início e conferi os dados contra a descrição do desafio.
 - **Zero número sem prova.** Exigi que cada número da documentação saísse de um script, e que tudo fosse testado de novo antes da entrega.
+- **Nada que pareça estranho para quem usa.** Na revisão final, não aceitei dois pontos que estavam certos nos dados, mas confundiriam: uma venda de US$ 16 entre as 5 da semana, e a previsão de US$ 0,2 mi ao lado dos US$ 5,0 mi do CRM sem explicação. A semana passou a ignorar vendas de valor muito baixo, e a tela da chefe passou a explicar a diferença.
 
 ---
 

@@ -83,10 +83,15 @@
 
   // ---------- aba Vendedor ----------
   const vendedores = unicos(vendas, "vendedor");
-  // Na primeira visita, abre no vendedor com as 5 da semana de maior valor esperado (um exemplo completo).
-  const valorSemana = (nome) => vendas.filter((v) => v.vendedor === nome && v.semana).reduce((s, v) => s + v.valor_esperado, 0);
+  // Na primeira visita, abre num exemplo completo: quem tem negociação em andamento, mais vendas na semana e maior valor esperado.
+  const daSemana = (nome) => vendas.filter((v) => v.vendedor === nome && v.semana);
+  const valorSemana = (nome) => daSemana(nome).reduce((s, v) => s + v.valor_esperado, 0);
+  const negocia = (nome) => vendas.some((v) => v.vendedor === nome && ["risco", "ativa", "esfriando"].includes(v.status));
   let vendedor = ler(CHAVE_VENDEDOR, null);
-  if (!vendedores.includes(vendedor)) vendedor = [...vendedores].sort((a, b) => valorSemana(b) - valorSemana(a))[0];
+  if (!vendedores.includes(vendedor)) {
+    vendedor = [...vendedores].sort((a, b) => negocia(b) - negocia(a) || daSemana(b).length - daSemana(a).length
+      || valorSemana(b) - valorSemana(a))[0];
+  }
 
   function desenharVendedor() {
     const minhas = vendas.filter((v) => v.vendedor === vendedor);
@@ -148,11 +153,14 @@
       <div class="card"><div class="n">${milhoes(soma(paradas, "preco"))}</div><div class="r">parado há mais de ${meta.prazo_maximo} dias (${paradas.length} vendas)</div></div>
       <div class="card"><div class="n">${semCliente.length}</div><div class="r">vendas sem cliente cadastrado (${milhoes(soma(semCliente, "preco"))})</div></div>`;
 
+    const vivas = lista.filter((v) => PRIORIDADE.includes(v.status));
+    const porque = `Por que a previsão é tão menor que o CRM? Das ${milhoes(crm)}, ${milhoes(soma(paradas, "preco"))} estão em vendas paradas e ${milhoes(soma(semCliente, "preco"))} em vendas sem cliente: nenhuma venda assim fechou na história. ` +
+      `Sobram ${milhoes(soma(vivas, "preco"))} em ${vivas.length} vendas vivas, e a previsão é a parte delas que deve fechar em 90 dias. `;
     const prev = meta.teste ? meta.teste.previsao : [];
     if (prev.length) {
       const vezes = prev.map((p) => p.crm / p.real);
       const erro = prev.map((p) => p.previsao / p.real - 1);
-      $("explica-previsao").innerHTML = `No teste com 4 datas do passado, o CRM mostrava <b>${Math.min(...vezes).toFixed(0)} a ${Math.max(...vezes).toFixed(0)} vezes</b> o que entrou de fato. ` +
+      $("explica-previsao").innerHTML = porque + `No teste com 4 datas do passado, o CRM mostrava <b>${Math.min(...vezes).toFixed(0)} a ${Math.max(...vezes).toFixed(0)} vezes</b> o que entrou de fato. ` +
         `A previsão da ferramenta errou <b>${pct(Math.min(...erro))} a ${pct(Math.max(...erro))} para cima</b>. Detalhes em "Como a nota funciona".`;
     }
 
@@ -237,6 +245,7 @@
   // ---------- início ----------
   $("hoje").textContent = dataBR(meta.hoje);
   document.querySelectorAll(".prazo").forEach((x) => { x.textContent = meta.prazo_maximo; });
+  document.querySelectorAll(".nota-minima").forEach((x) => { x.textContent = meta.nota_minima; });
   desenharComo();
   desenhar();
 })();
