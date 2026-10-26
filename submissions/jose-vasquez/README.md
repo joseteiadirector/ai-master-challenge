@@ -129,7 +129,7 @@ A nota ganhou de cada alternativa **nas 4 datas**. Vendas empatadas (mesmo preç
 
 ## Process Log — Como usei IA
 
-> Detalhes em [`process-log/`](process-log/): uma narrativa por etapa.
+> Detalhes em [`process-log/`](process-log/): uma narrativa por etapa e os trechos da conversa com a IA.
 
 ### Ferramentas usadas
 
@@ -173,6 +173,7 @@ A nota ganhou de cada alternativa **nas 4 datas**. Vendas empatadas (mesmo preç
 ## Evidências
 
 - [x] Narrativa escrita do processo, etapa por etapa — [`process-log/`](process-log/)
+- [x] Trechos da conversa com a IA: as minhas mensagens que mudaram o rumo do trabalho — [`process-log/04-trechos-da-conversa.md`](process-log/04-trechos-da-conversa.md)
 - [x] Git history — um commit por etapa
 - [x] Scripts que reproduzem cada número — [`solution/analise/`](solution/analise/) e [`solution/testes/`](solution/testes/)
 - [x] Resultado do teste com o passado — [`docs/resultado-teste.txt`](docs/resultado-teste.txt)
