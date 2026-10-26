@@ -156,6 +156,7 @@ conferir("Sem filtro volta ao total", JSON.stringify(await cards()) === JSON.str
 await aba("como");
 conferir("Aba Como a nota funciona abre", await js("!document.getElementById('aba-como').hidden"));
 conferir("Gráfico de chance com 13 faixas", (await js("document.querySelectorAll('#grafico .linha-g').length")) === 13);
+conferir("Passo do ajuste do último trimestre preenchido", await js("['aj-prev','aj-ganhas','aj-fator'].every(i=>document.getElementById(i).textContent.length>0)"), await js("document.getElementById('aj-prev').parentElement.innerText"));
 conferir("Resultado do teste com 5 jeitos de escolher", (await js("document.querySelectorAll('#teste-foco .barra').length")) === 5);
 conferir("Tabela da previsão com 4 datas", (await js("document.querySelectorAll('#teste-previsao tbody tr').length")) === 4);
 await foto("3-como-a-nota-funciona.png");

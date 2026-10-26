@@ -83,10 +83,11 @@
 
   <!-- ===================== COMO FUNCIONA ===================== -->
   <section id="aba-como" hidden>
-    <h2>A nota em 4 passos</h2>
+    <h2>A nota em 5 passos</h2>
     <ol class="passos">
       <li><b>Chance pelo tempo aberta.</b> Voltamos a <span id="n-fotos"></span> fins de mês do passado e vimos quantas vendas abertas foram ganhas nos 90 dias seguintes, conforme os dias que já tinham.</li>
       <li><b>Ajuste pela relação com o cliente.</b> Quando o vendedor já ganhou uma venda com aquele cliente, a venda fecha <b id="r-ja"></b> das vezes. Sem histórico, <b id="r-sem"></b>.</li>
+      <li><b>Ajuste pelo último trimestre.</b> A chance de ganhar caiu ao longo de 2017, e as fotos do passado chegam com 90 dias de atraso. Por isso o motor confere o último trimestre já conhecido: previu <b id="aj-prev"></b> vendas ganhas e foram <b id="aj-ganhas"></b>. A chance de hoje vale <b id="aj-fator"></b> da chance das fotos.</li>
       <li><b>Valor esperado = chance × preço do produto.</b></li>
       <li><b>Nota de 0 a 100</b> = posição desse valor esperado entre as vendas abertas. Nota 90 = vale mais que 90% delas.</li>
     </ol>

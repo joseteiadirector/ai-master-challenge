@@ -53,7 +53,7 @@ Os 4 CSVs originais do Kaggle estão em `solution/data/`, sem alteração.
 |---|---|---|
 | **Vendedor** | As 5 da semana: até 5 vendas de maior valor esperado, sem as de valor muito baixo (nota abaixo de 20). Cada uma com nota, motivo, próxima ação, chance e valor esperado. Depois, as outras vendas abertas e duas listas de limpeza | Feito · Ainda viva / Encerrar · Cadastrado |
 | **Chefe de vendas** | Pipeline do CRM × previsão real de 90 dias × parado × sem cliente, com a explicação da diferença, filtro por região e gerente, e o próximo passo de cada vendedor | — |
-| **Como a nota funciona** | Os 4 passos da nota, a curva de chance e o resultado dos testes | Apagar marcações |
+| **Como a nota funciona** | Os 5 passos da nota, a curva de chance e o resultado dos testes | Apagar marcações |
 
 **Como a nota é calculada:**
 
@@ -61,8 +61,9 @@ Os 4 CSVs originais do Kaggle estão em `solution/data/`, sem alteração.
 |---|---|
 | 1. Chance pelo tempo aberta | Fotos de 12 fins de mês. Até 100 dias: 44% a 59%. Depois cai: 45% → 32% → 22% → 10% → 0% aos 138 dias |
 | 2. Relação vendedor-cliente | Se o vendedor já ganhou com aquele cliente: 57%; sem histórico: 48% |
-| 3. Valor esperado | Chance × preço do produto (o valor fechado é o preço de tabela) |
-| 4. Nota de 0 a 100 | Posição do valor esperado entre as vendas abertas |
+| 3. Ajuste pelo último trimestre | A chance caiu ao longo de 2017. O motor confere o último trimestre já conhecido (previu 734 vendas ganhas, foram 576) e multiplica a chance por 78% |
+| 4. Valor esperado | Chance × preço do produto (o valor fechado é o preço de tabela) |
+| 5. Nota de 0 a 100 | Posição do valor esperado entre as vendas abertas |
 
 | Status | Regra | Próxima ação |
 |---|---|---|
@@ -101,10 +102,10 @@ A nota ganhou de cada alternativa **nas 4 datas**. Vendas empatadas (mesmo preç
 
 | Data | O CRM mostrava | A ferramenta previu | Entrou em 90 dias |
 |---|---|---|---|
-| 30/06/2017 | US$ 4,2 mi | US$ 1,6 mi | US$ 1,4 mi |
-| 31/07/2017 | US$ 5,5 mi | US$ 2,1 mi | US$ 1,7 mi |
-| 31/08/2017 | US$ 5,4 mi | US$ 1,7 mi | US$ 1,3 mi |
-| 30/09/2017 | US$ 5,8 mi | US$ 1,6 mi | US$ 1,2 mi |
+| 30/06/2017 | US$ 4,2 mi | US$ 1,5 mi | US$ 1,4 mi |
+| 31/07/2017 | US$ 5,5 mi | US$ 1,6 mi | US$ 1,7 mi |
+| 31/08/2017 | US$ 5,4 mi | US$ 1,5 mi | US$ 1,3 mi |
+| 30/09/2017 | US$ 5,8 mi | US$ 1,5 mi | US$ 1,2 mi |
 
 ### Recomendações
 
@@ -117,8 +118,8 @@ A nota ganhou de cada alternativa **nas 4 datas**. Vendas empatadas (mesmo preç
 
 ### Limitações
 
-- **A chance é otimista nas vendas mais promissoras:** prevê 66% e acontecem 53%. Nas faixas médias acerta melhor (prevê 45%, acontecem 43%). A ordem das vendas está certa, que é o que importa para priorizar.
-- **A previsão da chefe erra para cima:** de 12% a 35% nas 4 datas.
+- **A chance ainda é um pouco otimista nas vendas mais promissoras,** mesmo com o ajuste do último trimestre: prevê 62% e acontecem 54%. Nas faixas médias acerta melhor (prevê 44%, acontecem 47%; prevê 54%, acontecem 51%). A ordem das vendas está certa, que é o que importa para priorizar.
+- **A previsão da chefe erra entre −4% e +25%** nas 4 datas (antes do ajuste, errava de +12% a +35%). O ajuste usa só o último trimestre e chega com atraso quando a queda continua.
 - **Prospecções não têm data no dataset.** Não dá para testar a chance delas; usamos a de uma venda que acabou de começar. Por isso o teste com o passado só avalia vendas em negociação.
 - **O preço pesa muito.** Vendas do mesmo produto, na mesma faixa de dias e com a mesma relação ficam com a mesma nota.
 - **As marcações ficam no navegador de cada vendedor.** Para o time inteiro, precisariam ir para o CRM.
@@ -157,12 +158,14 @@ A nota ganhou de cada alternativa **nas 4 datas**. Vendas empatadas (mesmo preç
 | Mandou 879 vendas paradas há mais de 138 dias para a lista "cadastrar cliente" | Conferindo a contagem de cada lista | Parada vem antes de cadastro: não faz sentido cadastrar o cliente de uma venda morta |
 | Primeiro teste deu "só o maior preço" = 42,7% | Número diferente do esperado; investigando, só há 7 preços e o resultado dependia da ordem dos empates | Empates desfeitos por sorteio (média de 200): 48,4% |
 | Tela da chefe dizia o mesmo "próximo passo" para todos os vendedores | Olhando as fotos geradas pelo teste | Próximo passo específico de cada vendedor |
+| A chance era otimista (previa 66%, fechavam 53%) e a previsão errava de +12% a +35% | Teste com o passado; a causa: a chance de ganhar caiu ao longo de 2017 (62% em janeiro, 44% em setembro), e as fotos chegam com 90 dias de atraso. Usar só fotos recentes não resolveu | Ajuste pelo último trimestre já conhecido: erro da previsão passou para −4% a +25%, sem mudar a ordem das vendas |
 
 ### O que eu adicionei que a IA sozinha não faria
 
 - **Dois usuários.** A ferramenta não é só para o vendedor: quem fez o pedido foi a chefe de vendas, e ela precisa saber quanto do pipeline é real.
 - **Arquitetura e dados conferidos antes de qualquer código.** Pedi a arquitetura documentada desde o início e conferi os dados contra a descrição do desafio.
 - **Zero número sem prova.** Exigi que cada número da documentação saísse de um script, e que tudo fosse testado de novo antes da entrega.
+- **Atacar os pontos fracos em vez de só declarar.** A chance otimista estava escrita nas limitações; pedi para corrigir a causa antes de entregar.
 - **Nada que pareça estranho para quem usa.** Na revisão final, não aceitei dois pontos que estavam certos nos dados, mas confundiriam: uma venda de US$ 16 entre as 5 da semana, e a previsão de US$ 0,2 mi ao lado dos US$ 5,0 mi do CRM sem explicação. A semana passou a ignorar vendas de valor muito baixo, e a tela da chefe passou a explicar a diferença.
 
 ---

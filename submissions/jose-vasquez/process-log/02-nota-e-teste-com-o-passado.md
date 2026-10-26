@@ -60,16 +60,32 @@ O primeiro resultado deu "só o maior preço" = 42,7%, bem abaixo do esperado. A
 
 | Data | O CRM mostrava | A ferramenta previu | Entrou em 90 dias |
 |---|---|---|---|
-| 30/06/2017 | US$ 4,2 mi | US$ 1,6 mi | US$ 1,4 mi |
-| 31/07/2017 | US$ 5,5 mi | US$ 2,1 mi | US$ 1,7 mi |
-| 31/08/2017 | US$ 5,4 mi | US$ 1,7 mi | US$ 1,3 mi |
-| 30/09/2017 | US$ 5,8 mi | US$ 1,6 mi | US$ 1,2 mi |
+| 30/06/2017 | US$ 4,2 mi | US$ 1,5 mi | US$ 1,4 mi |
+| 31/07/2017 | US$ 5,5 mi | US$ 1,6 mi | US$ 1,7 mi |
+| 31/08/2017 | US$ 5,4 mi | US$ 1,5 mi | US$ 1,3 mi |
+| 30/09/2017 | US$ 5,8 mi | US$ 1,5 mi | US$ 1,2 mi |
 
-O CRM mostra 3 a 5 vezes o que entra. A previsão chega muito mais perto, mas erra para cima: de 12% a 35%.
+O CRM mostra 3 a 5 vezes o que entra. A previsão chega muito mais perto e erra entre −4% e +25% (com o ajuste descrito abaixo).
 
 ## A chance prevista bate?
 
-Vendas com cliente, nas 4 datas: prevê 45% e acontecem 43%; prevê 57% e acontecem 47%; prevê 66% e acontecem 53%. **A ordem está certa, o número é otimista nas chances altas.** Isso está nas limitações do README.
+Vendas com cliente, nas 4 datas, com o ajuste: prevê 44% e acontecem 47%; prevê 54% e acontecem 51%; prevê 62% e acontecem 54%. **A ordem está certa; nas chances altas o número ainda é um pouco otimista.** Isso está nas limitações do README.
+
+## Terceiro erro corrigido: a chance era otimista
+
+Na primeira versão do motor, a chance prevista ficava acima do real: previa 66% e fechavam 53%, e a previsão da chefe errava de +12% a +35%. Esse ponto estava só declarado nas limitações. José pediu para corrigir a causa antes de entregar.
+
+**Causa:** a chance de ganhar em 90 dias caiu ao longo de 2017 (62% nas fotos de janeiro, 44% nas de setembro), e cada foto só fica completa 90 dias depois. O motor aprendia com um passado mais otimista que o presente. Também apareceu um defeito nos dados: não há nenhum fechamento antes de 01/03/2017, então as fotos de outubro e novembro de 2016 dão 0%.
+
+**Primeira tentativa, descartada:** usar só as fotos mais recentes (últimas 3, 4, 6, 9 ou 12). Quase não mudou o erro (de +11% a +32% no melhor caso), porque até a foto mais recente tem 90 dias de atraso.
+
+**Correção:** ajuste pelo último trimestre já conhecido. Em cada data, o motor volta 90 dias, prevê com o que se sabia lá e compara com o que de fato fechou até hoje. A chance de hoje é multiplicada por essa proporção (em 31/12/2017: previu 734 vendas ganhas, foram 576, ajuste de 78%). Só usa informação que já existia na data, e o teste de "não espiar o futuro" confere isso.
+
+| | Antes do ajuste | Depois |
+|---|---|---|
+| Erro da previsão da chefe | +12% a +35% | −4% a +25% |
+| Chances altas: previsto → real | 66% → 53% | 62% → 54% |
+| Receita no topo (ordem das vendas) | 59,2% | 59,2% (o ajuste não muda a ordem) |
 
 ## O motor não espia o futuro
 

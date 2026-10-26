@@ -57,10 +57,11 @@ flowchart LR
 
 1. **Chance pelo tempo aberta**, medida em 12 fotos do passado (só vendas com cliente).
 2. **Ajuste pela relação vendedor-cliente:** 57% quando o vendedor já ganhou com o cliente, 48% sem histórico.
-3. **Valor esperado = chance × preço do produto.**
-4. **Nota de 0 a 100** = posição do valor esperado entre as vendas abertas.
-5. **As 5 da semana** = até 5 vendas de maior valor esperado de cada vendedor, com nota 20 ou mais (as de valor muito baixo ficam em "outras vendas"). As paradas (mais de 138 dias) e as sem cliente vão para as listas de limpeza.
-6. **Previsão da chefe** = soma dos valores esperados das vendas vivas e com cliente.
+3. **Ajuste pelo último trimestre:** a chance caiu ao longo de 2017 e as fotos chegam com 90 dias de atraso. O motor volta 90 dias, prevê com o que se sabia lá, compara com o que fechou e corrige a chance de hoje nessa proporção (hoje: 78%).
+4. **Valor esperado = chance × preço do produto.**
+5. **Nota de 0 a 100** = posição do valor esperado entre as vendas abertas.
+6. **As 5 da semana** = até 5 vendas de maior valor esperado de cada vendedor, com nota 20 ou mais (as de valor muito baixo ficam em "outras vendas"). As paradas (mais de 138 dias) e as sem cliente vão para as listas de limpeza.
+7. **Previsão da chefe** = soma dos valores esperados das vendas vivas e com cliente.
 
 ## Prova de que funciona
 
@@ -74,7 +75,7 @@ flowchart LR
 | Nota "óbvia" (taxa do vendedor no produto × preço) | 45,3% |
 | Ao acaso | 20,0% |
 
-O mesmo teste confere a previsão (o CRM mostrou 3 a 5 vezes o que entrou; a previsão errou de 12% a 35% para cima) e que o motor não espia o futuro. `solution/testes/teste_tela.mjs` clica em tudo na tela (32 conferências).
+O mesmo teste confere a previsão (o CRM mostrou 3 a 5 vezes o que entrou; a previsão errou entre −4% e +25%) e que o motor não espia o futuro. `solution/testes/teste_tela.mjs` clica em tudo na tela (33 conferências).
 
 ## Estrutura da pasta
 
