@@ -59,7 +59,7 @@ flowchart LR
 2. **Ajuste pela relação vendedor-cliente:** 57% quando o vendedor já ganhou com o cliente, 48% sem histórico.
 3. **Valor esperado = chance × preço do produto.**
 4. **Nota de 0 a 100** = posição do valor esperado entre as vendas abertas.
-5. **As 5 da semana** = as 5 vendas de maior valor esperado de cada vendedor, fora as paradas (mais de 138 dias) e as sem cliente, que vão para as listas de limpeza.
+5. **As 5 da semana** = até 5 vendas de maior valor esperado de cada vendedor, com nota 20 ou mais (as de valor muito baixo ficam em "outras vendas"). As paradas (mais de 138 dias) e as sem cliente vão para as listas de limpeza.
 6. **Previsão da chefe** = soma dos valores esperados das vendas vivas e com cliente.
 
 ## Prova de que funciona

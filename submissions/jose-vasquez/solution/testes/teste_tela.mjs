@@ -80,7 +80,7 @@ await cmd("Page.reload"); await esperar(2500);
 conferir("Página abre com o título certo", (await js("document.title")).includes("Lead Scorer"));
 const vendedorInicial = await js("document.getElementById('f-vendedor').value");
 const nSemana = await js("document.querySelectorAll('#lista-semana > li.venda').length");
-conferir("As 5 da semana aparecem", nSemana === 5, `${vendedorInicial}: ${nSemana} vendas`);
+conferir("As vendas da semana aparecem (1 a 5)", nSemana >= 1 && nSemana <= 5, `${vendedorInicial}: ${nSemana} vendas`);
 conferir("Cada venda da semana tem motivo e próxima ação", await js(`[...document.querySelectorAll('#lista-semana > li.venda')].every(li => li.querySelectorAll('.motivos li').length >= 2 && li.querySelector('.acao').textContent.length > 20)`));
 conferir("As 5 da semana estão em ordem de valor esperado", await js(`(()=>{const v=[...document.querySelectorAll('#lista-semana .valores b')].map(b=>+b.textContent.replace(/\\D/g,''));return v.every((x,i)=>!i||v[i-1]>=x)})()`));
 conferir("Nenhum texto quebrado (undefined, NaN, null)", await js(`!/undefined|NaN|\\bnull\\b/.test(document.body.innerText)`));
@@ -92,10 +92,12 @@ for (const nome of todos) {
   await escolher("f-vendedor", nome);
   const r = await js(`({semana: document.querySelectorAll('#lista-semana > li.venda').length,
     outros: document.querySelectorAll('#lista-semana .quem').length, texto: document.body.innerText})`);
-  if (r.semana > 5) problemas.push(`${nome}: ${r.semana} na semana`);
+  if (r.semana > 5 || r.semana < 1) problemas.push(`${nome}: ${r.semana} na semana`);
+  const notaBaixa = await js(`[...document.querySelectorAll('#lista-semana .nota')].some(n => parseInt(n.textContent) < window.DADOS.meta.nota_minima)`);
+  if (notaBaixa) problemas.push(`${nome}: venda de nota baixa na semana`);
   if (/undefined|NaN|\bnull\b/.test(r.texto)) problemas.push(`${nome}: texto quebrado`);
 }
-conferir(`Todos os ${todos.length} vendedores abrem sem erro e com no máximo 5 na semana`, problemas.length === 0, problemas.join("; "));
+conferir(`Todos os ${todos.length} vendedores abrem sem erro, com 1 a 5 na semana e nenhuma de nota baixa`, problemas.length === 0, problemas.join("; "));
 
 await escolher("f-vendedor", "Anna Snelling");
 conferir("Vendedor sem negociação vê o aviso", await js("!document.getElementById('alerta').hidden"), await js("document.getElementById('alerta').innerText"));
@@ -135,7 +137,7 @@ const totais = await cards();
 conferir("Resumo mostra CRM, previsão, parado e sem cliente", totais.length === 4, totais.join(" | "));
 const linhasTotal = await js("document.querySelectorAll('#tabela-vendedores tbody tr').length");
 conferir("Tabela por vendedor preenchida", linhasTotal >= 25, `${linhasTotal} vendedores`);
-conferir("Explicação da previsão aparece", (await js("document.getElementById('explica-previsao').innerText")).includes("vezes"));
+conferir("Explicação da previsão aparece (por que é menor e o teste)", await js("(()=>{const t=document.getElementById('explica-previsao').innerText;return t.includes('Por que') && t.includes('vezes')})()"));
 await foto("2-chefe-de-vendas.png");
 for (const regiao of await js("[...document.getElementById('f-regiao').options].map(o=>o.value).filter(Boolean)")) {
   await escolher("f-regiao", regiao);
