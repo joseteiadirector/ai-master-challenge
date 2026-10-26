@@ -53,6 +53,29 @@ flowchart LR
 - **Separar motor e tela.** No futuro, o motor pode ler direto do CRM em vez dos CSVs, sem mexer na tela. A tela também pode virar e-mail ou mensagem sem mexer no motor.
 - **Testar sem olhar o futuro.** Para saber se a nota funciona, o motor volta a datas do passado, só enxerga o que se sabia naquele dia e depois conferimos o que aconteceu.
 
+## Como a nota é calculada
+
+1. **Chance pelo tempo aberta**, medida em 12 fotos do passado (só vendas com cliente).
+2. **Ajuste pela relação vendedor-cliente:** 57% quando o vendedor já ganhou com o cliente, 48% sem histórico.
+3. **Valor esperado = chance × preço do produto.**
+4. **Nota de 0 a 100** = posição do valor esperado entre as vendas abertas.
+5. **As 5 da semana** = as 5 vendas de maior valor esperado de cada vendedor, fora as paradas (mais de 138 dias) e as sem cliente, que vão para as listas de limpeza.
+6. **Previsão da chefe** = soma dos valores esperados das vendas vivas e com cliente.
+
+## Prova de que funciona
+
+`solution/testes/teste_passado.py`, 4 datas de 2017, o motor só enxerga o que se sabia em cada dia. Focando nos 20% do topo:
+
+| Jeito de escolher | Receita dos 90 dias seguintes capturada |
+|---|---|
+| **Nota do Lead Scorer** | **59,2%** |
+| Nota só pelo tempo aberta | 56,4% |
+| Só o maior preço | 48,4% |
+| Nota "óbvia" (taxa do vendedor no produto × preço) | 45,3% |
+| Ao acaso | 20,0% |
+
+O mesmo teste confere a previsão (o CRM mostrou 3 a 5 vezes o que entrou; a previsão errou de 12% a 35% para cima) e que o motor não espia o futuro. `solution/testes/teste_tela.mjs` clica em tudo na tela (32 conferências).
+
 ## Estrutura da pasta
 
 ```
@@ -67,4 +90,4 @@ flowchart LR
 └── process-log/         o registro de cada etapa
 ```
 
-_Este documento é atualizado a cada etapa. Os números entram quando forem calculados e testados._
+_Os números deste documento saem dos scripts de `solution/analise/` e `solution/testes/`._
