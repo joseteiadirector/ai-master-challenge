@@ -20,7 +20,7 @@ Construí o **Lead Scorer "Segunda-feira"**, uma ferramenta com duas telas. O **
 
 **Abrir a ferramenta:** dois cliques em `solution/app/index.html`. Não precisa instalar nada.
 
-**Online:** _o link do GitHub Pages entra aqui na publicação._
+**Online, sem instalar nada:** **https://joseteiadirector.github.io/ai-master-challenge/submissions/jose-vasquez/solution/app/**
 
 Os dados do desafio terminam em 31/12/2017, então a ferramenta trata esse dia como "hoje".
 
