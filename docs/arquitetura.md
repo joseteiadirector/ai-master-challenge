@@ -59,6 +59,7 @@ flowchart LR
 ├── README.md            entrega no formato do G4
 ├── solution/
 │   ├── data/            os 4 CSVs originais
+│   ├── analise/         scripts que olham os dados e reproduzem cada número
 │   ├── motor/           o motor de nota (Python)
 │   ├── app/             a tela (HTML, CSS, JS e dados.js)
 │   └── testes/          teste com o passado e teste da tela
